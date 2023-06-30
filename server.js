@@ -1,7 +1,9 @@
 const express = require('express');
+require('dotenv').config({path:'./config/.env'});
+require('./config/db');
 const app = express();
-require('dotenv').config({path:'./config/.env'})
 
-app.listen(process.env.PORT, () => {
-    console.log(`Listening on port ${process.env.PORT}`);
+const port = process.env.PORT;
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
 })
