@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/user.routes');
+const postRoutes = require('./routes/post.routes');
 require('dotenv').config({path:'./config/.env'});
 require('./config/db');
 const app = express();
@@ -17,6 +18,8 @@ app.get('/jwtid', requireAuth, (req,res) => {
 
 //Initialize the routes
 app.use('/api/user', userRoutes);
+app.use('/api/post', postRoutes);
+
 
 
 //Start the server
