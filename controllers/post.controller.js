@@ -5,6 +5,7 @@ const ObjectID = require('mongoose').Types.ObjectId;
 
 module.exports.readPost = (req,res) => {
     PostModel.find()
+    .sort({createdAt:-1})
     .then((posts) => res.status(200).json(posts))
     // .then(res.send(docs))
     .catch(error => res.status(400).json({error}));
@@ -64,7 +65,7 @@ module.exports.likePost = async (req,res) => {
             },
             {new:true}
         );
-        res.status(201).json('Like added');
+        res.status(201).json({message:'like added'});
     } catch (err) {
         console.log(err);
         return res.status(500).json( {message: err});
@@ -91,4 +92,64 @@ module.exports.unlikePost = async (req,res) => {
         console.log(err);
         return res.status(500).json( {message: err});
     };
+};
+
+module.exports.commentPost = (req, res) => {
+    if(!ObjectID.isValid(req.params.id))
+    return res.status(400).send('ID unknown:' + req.params.id);
+    try {
+        PostModel.findByIdAndUpdate(
+        req.params.id,
+        {
+            $push:{
+                comments:{
+                    commenterId:req.body.commenterId,
+                    commenterPseudo:req.body.commenterPseudo,
+                    text:req.body.text,
+                    timestamp:new Date().getTime()
+                }
+            }
+        },
+        {new:true},
+
+        )
+        .then(() => res.status(200).json({message: 'comment added'}))
+        .catch(error => res.status(400).json({error}));
+    
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json( {message: error});
+    }
+
+
+
+}
+module.exports.editCommentPost = (req, res) => {
+    if(!ObjectID.isValid(req.params.id))
+        return res.status(400).send('ID unknown:' + req.params.id);
+    try {
+        PostModel.findById(
+            req.params.id,
+            (err,docs) => {
+                const theComment = docs.comments.find((comment)=> 
+                    comment._id.equals(req.body.commentId)
+                )
+                if(!theComment) return res.status(404).send('Comment not found')
+                theComment.text = req.body.text;
+                return docs.save((err) => {
+                    if (!err) return res.status(200).send(docs);
+                    return res.status(500).send(err);
+                })
+
+            }
+        )
+    } catch (error) {
+        
+    }
+
+
+}
+module.exports.deleteCommentPost = (req, res) => {
+
 }
