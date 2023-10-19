@@ -125,27 +125,31 @@ module.exports.commentPost = (req, res) => {
 
 
 }
-module.exports.editCommentPost = (req, res) => {
+module.exports.editCommentPost = async (req, res) => {
     if(!ObjectID.isValid(req.params.id))
         return res.status(400).send('ID unknown:' + req.params.id);
-    try {
-        PostModel.findById(
-            req.params.id,
-            (err,docs) => {
-                const theComment = docs.comments.find((comment)=> 
-                    comment._id.equals(req.body.commentId)
-                )
-                if(!theComment) return res.status(404).send('Comment not found')
-                theComment.text = req.body.text;
-                return docs.save((err) => {
-                    if (!err) return res.status(200).send(docs);
-                    return res.status(500).send(err);
-                })
-
-            }
-        )
-    } catch (error) {
         
+    try {
+        const post = await PostModel.findById(req.params.id);
+    
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+    
+        const theComment = post.comments.find(comment => comment._id.equals(req.body.commentId));
+    
+        if (!theComment) {
+            return res.status(404).send('Comment not found');
+        }
+    
+        theComment.text = req.body.text;
+    
+        await post.save();
+    
+        return res.status(200).send(post);
+    } catch (err) {
+        console.error(err); // Log the error for debugging purposes
+        return res.status(500).send('Internal Server Error');
     }
 
 
