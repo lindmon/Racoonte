@@ -18,7 +18,7 @@ router.patch('/follow/:id', userController.follow);
 router.patch('/unfollow/:id', userController.unfollow);
 
 //Uploading images
-router.post('/upload', multer ,uploadController.uploadProfil);
+router.post('/upload', multer, uploadController.uploadProfil);
 //next => modify the controllers OC 01:21, youtube 3:55
 
 module.exports = router;
